@@ -4,12 +4,20 @@ import sys, tty, termios; #for user input
 import multiprocessing, playsound; #for playing songs
 
 cwd = sys.path[0];
-#TODO: add json read write function to combat WET
+
 #open json file with song names and scores
 f = open(cwd + "/song_ratings.json","r");
 songs = json.load(f);
 f.close();
 songs_as_list = list(songs);
+
+
+#save songs to json
+def save():
+    f = open(cwd + "/song_ratings.json","w");
+    json.dump(songs, f, indent=1);
+    f.close();
+
 
 #user input function
 def getch():
@@ -24,6 +32,7 @@ def getch():
 
 gen_new_pair = True;
 
+
 #stop sound from playing
 def kill_audio():
     try:
@@ -31,6 +40,7 @@ def kill_audio():
         audio.join();
     except:
         pass;
+
 
 #logging via decorator function
 logging = False;
@@ -44,11 +54,12 @@ if(logging):
             return func(*args, **kwargs);
         return inner;
     
+    save = logger(save);
     kill_audio = logger(kill_audio);
     getch = logger(getch);
             
 
-print("esc or q to quit.\n1 or 2 to choose song (c to skip)\n[ or ] to play 1 or 2 (backspace to stop)");print("\n\n\n");
+print("esc or q to quit.\n1 or 2 to choose song (c to skip)\n[ or ] to play 1 or 2 (p or backspace to stop)");print("\n\n\n");
 
 while(True):
     
@@ -60,7 +71,7 @@ while(True):
             if(song1 != song2): #make sure not same song
                 break;
         gen_new_pair = False;
-        print("\033[F\033[F\033[F\33[2K1.) " + str(song1.split("/")[-1])[:65] + "\nor\n\33[2K2.) " + str(song2.split("/")[-1])[:65]);
+        print("\033[F\033[F\033[F\33[2K1.) " + str(song1.split("/")[-1])[:70] + "\nor\n\33[2K2.) " + str(song2.split("/")[-1])[:70]);
         #print("\r\33[2K",end="");
         #60 hardcoded to my konsole size
     
@@ -70,9 +81,7 @@ while(True):
     
     
     if(usr_input in ["q", "\x1b"]): #esc or q and key up
-        f = open(cwd + "/song_ratings.json","w");
-        json.dump(songs, f, indent=1);
-        f.close();
+        save();
         kill_audio();
         break;
     
@@ -80,17 +89,13 @@ while(True):
     
     if(usr_input == "1"):
         songs[song1] += 1;
-        f = open(cwd + "/song_ratings.json","w");
-        json.dump(songs, f, indent=1);
-        f.close();
+        save();
         kill_audio();
         gen_new_pair = True;
     
     if(usr_input == "2"):
         songs[song2] += 1;
-        f = open(cwd + "/song_ratings.json","w");
-        json.dump(songs, f, indent=1);
-        f.close();
+        save();
         kill_audio();
         gen_new_pair = True;
     
@@ -115,11 +120,6 @@ while(True):
     if(usr_input in ["p", "\x08", "\b", "\x7f"]): #backspace or p to stop song
         kill_audio();
     
-    
-    #if(usr_input[3] not in [1,16,2,3,46,26,27,14] and usr_input[4] == 1 and in_focus()): #erasing invalid inputs from the screen
-        #print("\r\33[2K",end="");
-    
-    time.sleep(.05);
 #end while loop
-
+save(); #just in case
 print("\33[2K"); #clear last line so terminal prompt behaves properly on exit
