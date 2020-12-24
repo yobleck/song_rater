@@ -49,14 +49,15 @@ if(logging):
     def logger(func):
         def inner(*args, **kwargs):
             log = open(cwd + "/log.txt","a");
-            log.write(str(datetime.now().isoformat()) + " " + str(func) + "\n");
-            log.close();
+            log.write(str(datetime.now().isoformat())+" func: "+str(func.__qualname__)+" *args: "+str(args)+" **kwargs: "+str(kwargs)+"\n");
+            log.close(); #TODO: how to list return value without calling code twice?
             return func(*args, **kwargs);
         return inner;
     
     save = logger(save);
     kill_audio = logger(kill_audio);
     getch = logger(getch);
+    print = logger(print);
             
 
 print("esc or q to quit.\n1 or 2 to choose song (c to skip)\n[ or ] to play 1 or 2 (p or backspace to stop)");print("\n\n\n");
