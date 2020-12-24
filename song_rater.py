@@ -43,7 +43,7 @@ def kill_audio():
 
 
 #logging via decorator function
-logging = False;
+logging = any(i in ["-l","-log","--log","--logging","--logger"] for i in sys.argv);
 if(logging):
     log = open(cwd + "/log.txt","a");log.write("\n" + str(datetime.now().isoformat()) + " LOGGING STARTED\n");log.close();
     def logger(func):
